@@ -1,26 +1,34 @@
 package minjun.ddd.order.domain;
 
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.Embedded;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import minjun.ddd.product.domain.Product;
+import minjun.ddd.common.domain.Money;
 
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@EqualsAndHashCode(of = {"product", "quantity"})
-@ToString(of = {"product", "quantity"})
+@EqualsAndHashCode(of = {"productId", "quantity"})
+@ToString(of = {"productId", "quantity"})
 public class LineItem {
 
-  @OneToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "products_id", nullable = false)
-  private Product product;
+  private Long productId;
+
+  @Embedded
+  @AttributeOverrides(value = {
+      @AttributeOverride(name = "value", column = @Column(name = "price", nullable = false))
+  })
+  private Money price;
 
   @Column(nullable = false)
   private Integer quantity;
+
+  public Money calcAmount() {
+    return price.multiple(quantity);
+  }
 }

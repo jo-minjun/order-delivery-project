@@ -1,0 +1,126 @@
+@startuml
+
+' db: H2
+' 불변식 1: 배송이 시작되면 주문을 취소할 수 없다
+' 불변식 2: 취소 주문 금액은 10,000원이다
+' 불변식 3: 배송이 시작되면 배송 정보 변경 불가능하다
+' Entity, Repository, Service, ServiceTest
+' Hexagonal Architecture 적용
+' + xxxapp
+'   + adapter
+'     + in
+'       - EventHandler
+'     + out
+'       - EventPublisher
+'   + application
+'     - xxxRepository
+'     - xxxService
+'     + domain
+'       - Entity, Value, Factory, Event
+' 
+
+package productapp {
+
+    class Product <<root>> {
+        - id: Long
+        - name: String
+        - price: Money
+        - description: String
+    }
+
+}
+
+package orderapp {
+
+    class Order<<root>> {
+        - id: Long
+        - lineItem: OrderLineItem
+        ' totalAmount 값을 가지고 있을 것인가? 실시간 계산을 할 것인가?
+        - totalAmount: Money
+        - deliveryInfo: DeliveryInfo
+        - paymentInfo: PaymentInfo
+        - status: OrderStatus
+
+    }
+
+    enum OrderStatus {
+        ' 주문접수됨, 주문승인됨(카드 승인될 경우), 배송시작됨, 배송완료됨, 취소됨
+        - PLACED
+        - PAYMENT_APPROVED
+        - DELIVERY_STARTED
+        - DELIVERY_COMPLETED
+        - CANCELLED
+    }
+
+    class OrderLineItem {
+        - elements: Set<LineItem>
+    }
+
+    class LineItem {
+        - productId: Long
+        - quantity: Integer
+    }
+
+    class DeliveryInfo {
+        - address: Address
+        - phoneNumber: String
+        - deliveryId: Long
+    }
+
+    class PaymentInfo {
+        - paymentId: Long
+        - cardNo: String
+    }
+
+    Order --> OrderStatus
+
+}
+
+package deliveryapp {
+    
+    class Delivery<<root>> {
+        - id: Long
+        - address: Address
+        - status: DeliveryStatus
+    }
+
+    enum DeliveryStatus {
+        ' 접수됨, 시작됨, 완료됨, 취소됨
+        - SUBMITTED
+        - STARTERD
+        - COMPLETED
+        ' 취소 상황이 없으면 뺄 것
+        - CANCELLED
+    }
+
+}
+
+package paymentapp {
+
+    class Payment<<root>> {
+        - id: Long
+        - cardNo: String
+        - status: PaymentStatus
+        ' 승인 번호
+        - authorizedNo: String
+    }
+
+    class PaymentStatus {
+        ' 접수됨, 승인됨, 거절됨
+        - SUBMITTED
+        - APPROVED
+        - REJECTED
+    }
+
+}
+
+package common {
+
+    class Address {
+        - zipCode: String
+        - address: String
+    }
+
+}
+
+@enduml

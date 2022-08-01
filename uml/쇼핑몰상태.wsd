@@ -1,0 +1,36 @@
+@startuml
+
+' deliveryapp.deliveryStarted() -> orderapp.deliveryStarted()
+' deliveryapp.deliveryCompleted() -> orderapp.deliveryCompleted()
+' paymentapp.approvePayment() -> orderapp.paymentApproved()
+' paymentapp.rejectPayment -> orderapp.orderCancelled() ???
+
+state orderapp {
+    [*] --> PLACED: placeOrder()
+    PLACED --> PAYMENT_APPROVED: paymentApproved()
+    PAYMENT_APPROVED --> DELIVERY_STARTED: deliveryStarted()
+    DELIVERY_STARTED --> DELIVERY_COMPLETED: deliveryCompleted()
+    DELIVERY_COMPLETED --> [*]
+    PLACED --> CANCELLED: orderCancelled()
+    PAYMENT_APPROVED --> CANCELLED: orderCancelled()
+    CANCELLED --> [*] 
+}
+
+state deliveryapp {
+    ' CANCELLED ???
+    [*] --> SUBMITTED: createDelivery()
+    SUBMITTED --> STARTERD: deliveryStarted()
+    STARTERD --> COMPLETED: deliveryCompleted()
+    COMPLETED --> [*]
+}
+
+
+state paymentapp {
+    [*] --> P_SUBMITTED: createPayment()
+    P_SUBMITTED --> P_APPROVED: approvePayment()
+    P_APPROVED --> [*]
+    P_SUBMITTED --> P_REJECTED: rejectPayment()
+    P_REJECTED --> [*]
+}
+
+@enduml

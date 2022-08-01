@@ -18,7 +18,7 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import minjun.ddd.common.shared.Money;
+import minjun.ddd.common.domain.Money;
 import minjun.ddd.payment.domain.Payment;
 
 @Entity

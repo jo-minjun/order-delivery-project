@@ -1,4 +1,4 @@
-package minjun.ddd.common.shared;
+package minjun.ddd.common.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;

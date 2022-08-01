@@ -14,7 +14,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import minjun.ddd.common.shared.Money;
+import minjun.ddd.common.domain.Money;
 
 @Entity
 @Table(name = "products")

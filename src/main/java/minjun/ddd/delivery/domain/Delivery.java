@@ -12,7 +12,7 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import minjun.ddd.common.shared.Address;
+import minjun.ddd.common.domain.Address;
 
 @Entity
 @Table(name = "deliveries")

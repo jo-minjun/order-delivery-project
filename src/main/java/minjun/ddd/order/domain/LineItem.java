@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -27,6 +28,13 @@ public class LineItem {
 
   @Column(nullable = false)
   private Integer quantity;
+
+  @Builder
+  public LineItem(Long productId, Money price, Integer quantity) {
+    this.productId = productId;
+    this.price = price;
+    this.quantity = quantity;
+  }
 
   public Money calcAmount() {
     return price.multiple(quantity);

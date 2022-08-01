@@ -3,6 +3,7 @@ package minjun.ddd.common.domain;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,4 +20,10 @@ public class Address {
   private String zipCode;
 
   private String address;
+
+  @Builder
+  public Address(String zipCode, String address) {
+    this.zipCode = zipCode;
+    this.address = address;
+  }
 }

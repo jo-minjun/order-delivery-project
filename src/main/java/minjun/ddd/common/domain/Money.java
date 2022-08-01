@@ -17,4 +17,16 @@ public class Money {
 
     @Column(name = "money", nullable = false)
     private Integer value;
+
+    public Money(Integer value) {
+        this.value = value;
+    }
+
+    public Money multiple(int operand) {
+        return new Money(value * operand);
+    }
+
+    public Money sum(Money money) {
+        return new Money(this.value + money.getValue());
+    }
 }

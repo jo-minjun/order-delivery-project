@@ -53,6 +53,17 @@ public class Order {
   @Enumerated(value = EnumType.STRING)
   private OrderStatus status = OrderStatus.PLACED;
 
+  public static Order createOrder(OrderLine orderLine) {
+    final Money totalAmount = orderLine.calcTotalAmount();
+    verifyMinimumTotalAmount(totalAmount);
+
+    return Order.builder()
+        .orderLine(orderLine)
+        .totalAmount(totalAmount)
+        .status(OrderStatus.PLACED)
+        .build();
+  }
+
   @Builder
   public Order(Long id, OrderLine orderLine, Money totalAmount, DeliveryInfo deliveryInfo,
       Payment payment, OrderStatus status) {
@@ -65,13 +76,24 @@ public class Order {
   }
 
   public void cancel() {
-    verifyNotYetDeliveryStarted();
+    verifyNotYetDeliveryStarted(status);
     status = OrderStatus.CANCELED;
   }
 
-  private void verifyNotYetDeliveryStarted() {
+  public void changeDeliveryInfo(DeliveryInfo deliveryInfo) {
+    verifyNotYetDeliveryStarted(status);
+    this.deliveryInfo = deliveryInfo;
+  }
+
+  private static void verifyNotYetDeliveryStarted(OrderStatus status) {
     if (!status.isNotYetDeliveryStarted()) {
       throw new RuntimeException("Delivery Started");
+    }
+  }
+
+  private static void verifyMinimumTotalAmount(Money totalAmount) {
+    if (totalAmount == null || totalAmount.getValue() < 10000) {
+      throw new RuntimeException("Less than Minimum TotalAmount");
     }
   }
 }

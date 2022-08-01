@@ -12,6 +12,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import minjun.ddd.common.domain.Money;
 
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -26,5 +27,13 @@ public class OrderLine {
 
   public OrderLine(Set<LineItem> lineItems) {
     this.lineItems = Collections.unmodifiableSet(lineItems);
+  }
+
+  public Money calcTotalAmount() {
+    int amount = lineItems.stream()
+        .mapToInt(lineItem -> lineItem.calcAmount().getValue())
+        .sum();
+
+    return new Money(amount);
   }
 }

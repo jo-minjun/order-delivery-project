@@ -2,6 +2,7 @@ package minjun.ddd.order.domain;
 
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import minjun.ddd.common.domain.Address;
@@ -17,4 +18,11 @@ public class DeliveryInfo {
 
   @Embedded
   private Address address;
+
+  @Builder
+  public DeliveryInfo(Long deliveryId, String phoneNumber, Address address) {
+    this.deliveryId = deliveryId;
+    this.phoneNumber = phoneNumber;
+    this.address = address;
+  }
 }

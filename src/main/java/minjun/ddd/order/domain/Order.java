@@ -15,7 +15,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import minjun.ddd.common.domain.Money;
@@ -23,6 +25,7 @@ import minjun.ddd.payment.domain.Payment;
 
 @Entity
 @Table(name = "orders")
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(of = {"id"})
 @ToString(of = {"id", "orderLine", "totalAmount", "deliveryInfo", "payment"})
@@ -48,5 +51,27 @@ public class Order {
   private Payment payment;
 
   @Enumerated(value = EnumType.STRING)
-  private OrderStatus status;
+  private OrderStatus status = OrderStatus.PLACED;
+
+  @Builder
+  public Order(Long id, OrderLine orderLine, Money totalAmount, DeliveryInfo deliveryInfo,
+      Payment payment, OrderStatus status) {
+    this.id = id;
+    this.orderLine = orderLine;
+    this.totalAmount = totalAmount;
+    this.deliveryInfo = deliveryInfo;
+    this.payment = payment;
+    this.status = status;
+  }
+
+  public void cancel() {
+    verifyNotYetDeliveryStarted();
+    status = OrderStatus.CANCELED;
+  }
+
+  private void verifyNotYetDeliveryStarted() {
+    if (!status.isNotYetDeliveryStarted()) {
+      throw new RuntimeException("Delivery Started");
+    }
+  }
 }

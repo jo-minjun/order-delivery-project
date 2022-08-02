@@ -28,6 +28,8 @@ public class Delivery {
   @Embedded
   private Address address;
 
+  private String phoneNumber;
+
   @Enumerated(value = EnumType.STRING)
   private DeliveryStatus status;
 }

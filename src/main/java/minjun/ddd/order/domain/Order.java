@@ -1,34 +1,28 @@
 package minjun.ddd.order.domain;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
-import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.AccessLevel;
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import minjun.ddd.common.domain.Money;
-import minjun.ddd.payment.domain.Payment;
 
 @Entity
 @Table(name = "orders")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @EqualsAndHashCode(of = {"id"})
-@ToString(of = {"id", "orderLine", "totalAmount", "deliveryInfo", "payment"})
+@ToString(of = {"id", "orderLine", "totalAmount", "deliveryId", "paymentId"})
 public class Order {
 
   @Id
@@ -38,41 +32,30 @@ public class Order {
   @Embedded
   private OrderLine orderLine;
 
-  @Embedded
-  @AttributeOverrides(value = {
-      @AttributeOverride(name = "value", column = @Column(name = "total_amount", nullable = false))
-  })
-  private Money totalAmount;
+  private Money totalAmount = Money.ZERO;
 
-  private DeliveryInfo deliveryInfo;
+  private Long deliveryId;
 
-  @OneToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "payments_id")
-  private Payment payment;
+  private Long paymentId;
 
+  // TODO: 상태 패턴
   @Enumerated(value = EnumType.STRING)
   private OrderStatus status = OrderStatus.PLACED;
 
-  public static Order createOrder(OrderLine orderLine) {
+  /**
+   * order를 만저 만들고 delivery를 set할 것인가? delivery를 만들고 order를 생성할 것인가?
+   */
+  public static Order createOrder(OrderLine orderLine, Long paymentId) {
     final Money totalAmount = orderLine.calcTotalAmount();
     verifyMinimumTotalAmount(totalAmount);
 
-    return Order.builder()
-        .orderLine(orderLine)
-        .totalAmount(totalAmount)
-        .status(OrderStatus.PLACED)
-        .build();
+    return new Order(orderLine, totalAmount, paymentId);
   }
 
-  @Builder
-  public Order(Long id, OrderLine orderLine, Money totalAmount, DeliveryInfo deliveryInfo,
-      Payment payment, OrderStatus status) {
-    this.id = id;
+  private Order(OrderLine orderLine, Money totalAmount, Long paymentId) {
     this.orderLine = orderLine;
     this.totalAmount = totalAmount;
-    this.deliveryInfo = deliveryInfo;
-    this.payment = payment;
-    this.status = status;
+    this.paymentId = paymentId;
   }
 
   public void cancel() {
@@ -80,9 +63,9 @@ public class Order {
     status = OrderStatus.CANCELED;
   }
 
-  public void changeDeliveryInfo(DeliveryInfo deliveryInfo) {
+  public void changeDeliveryInfo(Long deliveryId) {
     verifyNotYetDeliveryStarted(status);
-    this.deliveryInfo = deliveryInfo;
+    this.deliveryId = deliveryId;
   }
 
   private static void verifyNotYetDeliveryStarted(OrderStatus status) {
@@ -92,7 +75,9 @@ public class Order {
   }
 
   private static void verifyMinimumTotalAmount(Money totalAmount) {
-    if (totalAmount == null || totalAmount.getValue() < 10000) {
+    final Money minimumOrderAmount = new Money(10000);
+
+    if (!totalAmount.isGreaterThanOrEqualTo(minimumOrderAmount)) {
       throw new RuntimeException("Less than Minimum TotalAmount");
     }
   }

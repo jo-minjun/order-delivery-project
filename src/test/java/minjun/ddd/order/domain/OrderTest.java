@@ -2,9 +2,9 @@ package minjun.ddd.order.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 
 import java.util.Set;
-import minjun.ddd.common.domain.Address;
 import minjun.ddd.common.domain.Money;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ class OrderTest {
     final Order order = createOrderWithStatus(status);
 
     // when, then
-    assertThatThrownBy(() -> order.cancel())
+    assertThatThrownBy(order::cancel)
         .isInstanceOf(RuntimeException.class)
         .hasMessage("Delivery Started");
   }
@@ -59,7 +59,7 @@ class OrderTest {
     ));
 
     // when, then
-    assertThatThrownBy(() -> Order.createOrder(orderLine))
+    assertThatThrownBy(() -> Order.createOrder(orderLine, any(Long.class)))
         .isInstanceOf(RuntimeException.class)
         .hasMessage("Less than Minimum TotalAmount");
   }
@@ -71,7 +71,7 @@ class OrderTest {
     final OrderLine orderLine = new OrderLine(Set.of(createLineItem(10000, 1)));
 
     // when
-    final Order order = Order.createOrder(orderLine);
+    final Order order = Order.createOrder(orderLine, any(Long.class));
 
     // then
     assertThat(order.getStatus()).isEqualTo(OrderStatus.PLACED);
@@ -85,11 +85,14 @@ class OrderTest {
   )
   @DisplayName(value = "배송이 시작되면 배송지를 변경할 수 없다.")
   void changeDeliveryInfo_fail(OrderStatus status) {
+    // given
     final Order order = createOrderWithStatus(status);
-    DeliveryInfo deliveryInfo = createDeliveryInfo();
+    final long deliveryId = 1L;
 
-    order.changeDeliveryInfo(deliveryInfo);
-
+    // when, then
+    assertThatThrownBy(() -> order.changeDeliveryInfo(deliveryId))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Delivery Started");
   }
 
   @ParameterizedTest
@@ -99,30 +102,29 @@ class OrderTest {
   )
   @DisplayName(value = "배송이 시작되기 전에는 배송지를 변경할 수 있다.")
   void changeDeliveryInfo_success(OrderStatus status) {
+    // given
     final Order order = createOrderWithStatus(status);
+    final long deliveryId = 1L;
 
-  }
+    // when
+    order.changeDeliveryInfo(deliveryId);
 
-  DeliveryInfo createDeliveryInfo() {
-    return DeliveryInfo.builder()
-        .address(Address.builder()
-            .zipCode("zipCode")
-            .address("address")
-            .build())
-        .phoneNumber("010-0000-0000")
-        .build();
+    // then
+    assertThat(order.getDeliveryId()).isEqualTo(deliveryId);
   }
 
   LineItem createLineItem(int price, int quantity) {
-    return LineItem.builder()
-        .price(new Money(price))
-        .quantity(quantity)
-        .build();
+    return new LineItem(any(Long.class), new Money(price), quantity);
   }
 
   Order createOrderWithStatus(OrderStatus status) {
-    return Order.builder()
-        .status(status)
-        .build();
+    return new Order(
+        any(Long.class),
+        any(OrderLine.class),
+        any(Money.class),
+        any(Long.class),
+        any(Long.class),
+        status
+    );
   }
 }

@@ -1,32 +1,36 @@
 package minjun.ddd.common.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import lombok.AccessLevel;
+import java.math.BigDecimal;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@Embeddable
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @EqualsAndHashCode(of = {"value"})
 @ToString(of = {"value"})
 public class Money {
 
-    @Column(name = "money", nullable = false)
-    private Integer value;
+    public static final Money ZERO = new Money(BigDecimal.ZERO);
 
-    public Money(Integer value) {
+    private BigDecimal value;
+
+    public Money(BigDecimal value) {
         this.value = value;
     }
 
-    public Money multiple(int operand) {
-        return new Money(value * operand);
+    public Money(Integer value) {
+        this.value = BigDecimal.valueOf(value);
     }
 
-    public Money sum(Money money) {
-        return new Money(this.value + money.getValue());
+    public Money multiply(int multiplier) {
+        return new Money(value.multiply(BigDecimal.valueOf(multiplier)));
+    }
+
+    public Money add(Money that) {
+        return new Money(this.value.add(that.value) );
+    }
+
+    public boolean isGreaterThanOrEqualTo(Money that) {
+        return this.value.compareTo(that.value) >= 0;
     }
 }

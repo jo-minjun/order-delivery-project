@@ -13,10 +13,10 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @EqualsAndHashCode(of = {"zipCode", "address"})
-@ToString(of = {"zipCode", "address"})
+@ToString
 public class Address {
 
-  @Column(length = 6)
+  @Column(length = 5)
   private String zipCode;
 
   private String address;

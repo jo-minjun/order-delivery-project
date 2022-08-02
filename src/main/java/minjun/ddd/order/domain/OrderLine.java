@@ -25,15 +25,17 @@ public class OrderLine {
   @CollectionTable(name = "order_lines", joinColumns = @JoinColumn(name = "orders_id"))
   private Set<LineItem> lineItems = new HashSet<>();
 
+  // order 변경은 없다고 가정한다.
+  // 변경 필요시 order 최소 후, 재주문
+  // 백오피스에서 변경할 시나리오는 고려하지 않는다.
+  // set을 재할당하는 것은 가능
   public OrderLine(Set<LineItem> lineItems) {
     this.lineItems = Collections.unmodifiableSet(lineItems);
   }
 
   public Money calcTotalAmount() {
-    int amount = lineItems.stream()
-        .mapToInt(lineItem -> lineItem.calcAmount().getValue())
-        .sum();
-
-    return new Money(amount);
+    return lineItems.stream()
+        .map(LineItem::calcAmount)
+        .reduce(Money.ZERO, Money::add);
   }
 }

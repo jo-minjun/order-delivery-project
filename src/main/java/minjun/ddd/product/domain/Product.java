@@ -1,9 +1,6 @@
 package minjun.ddd.product.domain;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
-import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -31,10 +28,6 @@ public class Product {
   @Column(nullable = false, length = 128)
   private String name;
 
-  @Embedded
-  @AttributeOverrides(value = {
-          @AttributeOverride(name = "value", column = @Column(name = "price", nullable = false))
-  })
   private Money price;
 
   private String description;

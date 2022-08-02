@@ -6,47 +6,41 @@ import static org.mockito.ArgumentMatchers.any;
 
 import java.util.Set;
 import minjun.ddd.common.domain.Money;
+import minjun.ddd.order.domain.state.CancelledState;
+import minjun.ddd.order.domain.state.DeliveryStartedState;
+import minjun.ddd.order.domain.state.OrderState;
+import minjun.ddd.order.domain.state.PaymentApprovedState;
+import minjun.ddd.order.domain.state.PlacedState;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
-import org.junit.jupiter.params.provider.EnumSource.Mode;
 
 class OrderTest {
 
-  @ParameterizedTest
-  @EnumSource(
-      value = OrderStatus.class,
-      names = {"PLACED", "PAYMENT_APPROVED"},
-      mode = Mode.EXCLUDE
-  )
+  @Test
   @DisplayName(value = "배송이 시작되면 주문을 취소할 수 없다.")
-  void cancel_fail(OrderStatus status) {
+  void cancel_fail() {
     // given
-    final Order order = createOrderWithStatus(status);
+    final OrderState state = new DeliveryStartedState();
+    final Order order = createOrderWithStatus(state);
 
     // when, then
-    assertThatThrownBy(order::cancel)
-        .isInstanceOf(RuntimeException.class)
-        .hasMessage("Delivery Started");
+    assertThatThrownBy(order::cancelOrder)
+        .isInstanceOf(RuntimeException.class);
   }
 
-  @ParameterizedTest
-  @EnumSource(
-      value = OrderStatus.class,
-      names = {"PLACED", "PAYMENT_APPROVED"}
-  )
+  @Test
   @DisplayName(value = "배송이 시작되기 전에는 주문을 취소할 수 있다.")
-  void cancel_success(OrderStatus status) {
+  void cancel_success() {
     // given
-    final Order order = createOrderWithStatus(status);
+    final OrderState state = new PaymentApprovedState();
+    final Order order = createOrderWithStatus(state);
 
     // when
-    order.cancel();
+    order.cancelOrder();
 
     // then
-    assertThat(order.getStatus())
-        .isEqualTo(OrderStatus.CANCELED);
+    assertThat(order.getState())
+        .isInstanceOf(CancelledState.class);
   }
 
   @Test
@@ -74,50 +68,15 @@ class OrderTest {
     final Order order = Order.createOrder(orderLine, any(Long.class));
 
     // then
-    assertThat(order.getStatus()).isEqualTo(OrderStatus.PLACED);
-  }
-
-  @ParameterizedTest
-  @EnumSource(
-      value = OrderStatus.class,
-      names = {"PLACED", "PAYMENT_APPROVED"},
-      mode = Mode.EXCLUDE
-  )
-  @DisplayName(value = "배송이 시작되면 배송지를 변경할 수 없다.")
-  void changeDeliveryInfo_fail(OrderStatus status) {
-    // given
-    final Order order = createOrderWithStatus(status);
-    final long deliveryId = 1L;
-
-    // when, then
-    assertThatThrownBy(() -> order.changeDeliveryInfo(deliveryId))
-        .isInstanceOf(RuntimeException.class)
-        .hasMessage("Delivery Started");
-  }
-
-  @ParameterizedTest
-  @EnumSource(
-      value = OrderStatus.class,
-      names = {"PLACED", "PAYMENT_APPROVED"}
-  )
-  @DisplayName(value = "배송이 시작되기 전에는 배송지를 변경할 수 있다.")
-  void changeDeliveryInfo_success(OrderStatus status) {
-    // given
-    final Order order = createOrderWithStatus(status);
-    final long deliveryId = 1L;
-
-    // when
-    order.changeDeliveryInfo(deliveryId);
-
-    // then
-    assertThat(order.getDeliveryId()).isEqualTo(deliveryId);
+    assertThat(order.getState())
+        .isInstanceOf(PlacedState.class);
   }
 
   LineItem createLineItem(int price, int quantity) {
     return new LineItem(any(Long.class), new Money(price), quantity);
   }
 
-  Order createOrderWithStatus(OrderStatus status) {
+  Order createOrderWithStatus(OrderState status) {
     return new Order(
         any(Long.class),
         any(OrderLine.class),

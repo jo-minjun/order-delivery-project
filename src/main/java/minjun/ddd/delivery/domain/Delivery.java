@@ -10,12 +10,14 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import minjun.ddd.common.domain.Address;
 
 @Entity
 @Table(name = "deliveries")
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(of = {"id"})
 @ToString(of = {"id", "address", "status"})

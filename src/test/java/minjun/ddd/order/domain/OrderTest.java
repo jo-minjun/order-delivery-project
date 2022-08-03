@@ -53,7 +53,8 @@ class OrderTest {
     ));
 
     // when, then
-    assertThatThrownBy(() -> Order.createOrder(orderLine, any(Long.class)))
+    assertThatThrownBy(() -> Order.createOrder(orderLine, any(String.class),
+        any(DeliveryInfo.class)))
         .isInstanceOf(RuntimeException.class)
         .hasMessage("Less than Minimum TotalAmount");
   }
@@ -65,7 +66,8 @@ class OrderTest {
     final OrderLine orderLine = new OrderLine(Set.of(createLineItem(10000, 1)));
 
     // when
-    final Order order = Order.createOrder(orderLine, any(Long.class));
+    final Order order = Order.createOrder(orderLine, any(String.class),
+        any(DeliveryInfo.class));
 
     // then
     assertThat(order.getState())
@@ -81,7 +83,7 @@ class OrderTest {
         any(Long.class),
         any(OrderLine.class),
         any(Money.class),
-        any(Long.class),
+        any(DeliveryInfo.class),
         any(Long.class),
         status
     );

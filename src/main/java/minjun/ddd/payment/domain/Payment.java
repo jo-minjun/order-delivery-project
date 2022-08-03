@@ -10,12 +10,14 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "payments")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(of = {"id"})
+@Getter
 public class Payment {
 
   @Id

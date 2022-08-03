@@ -2,7 +2,6 @@ package minjun.ddd.order.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 
 import java.util.Set;
 import minjun.ddd.common.domain.Money;
@@ -53,8 +52,8 @@ class OrderTest {
     ));
 
     // when, then
-    assertThatThrownBy(() -> Order.createOrder(orderLine, any(String.class),
-        any(DeliveryInfo.class)))
+    assertThatThrownBy(() ->
+        Order.createOrder(orderLine, null, null))
         .isInstanceOf(RuntimeException.class)
         .hasMessage("Less than Minimum TotalAmount");
   }
@@ -66,26 +65,54 @@ class OrderTest {
     final OrderLine orderLine = new OrderLine(Set.of(createLineItem(10000, 1)));
 
     // when
-    final Order order = Order.createOrder(orderLine, any(String.class),
-        any(DeliveryInfo.class));
+    final Order order = Order.createOrder(orderLine, null, null);
 
     // then
     assertThat(order.getState())
         .isInstanceOf(PlacedState.class);
   }
 
-  LineItem createLineItem(int price, int quantity) {
-    return new LineItem(any(Long.class), new Money(price), quantity);
+  @Test
+  @DisplayName(value = "배송이 시작되면 배송지를 변경할 수 없다.")
+  void changeDeliveryInfo_fail() {
+    // given
+    final Order order = createOrderWithStatus(new DeliveryStartedState());
+    final long deliveryId = 100L;
+
+    // when, then
+    assertThatThrownBy(() -> order.changeDeliveryInfo(
+            new DeliveryInfo(deliveryId, null, null)
+        ))
+        .isInstanceOf(RuntimeException.class);
   }
 
-  Order createOrderWithStatus(OrderState status) {
+  @Test
+  @DisplayName(value = "배송이 시작되기 전에는 배송지를 변경할 수 있다.")
+  void changeDeliveryInfo_success() {
+    // given
+    final Order order = createOrderWithStatus(new PaymentApprovedState());
+    final long deliveryId = 100L;
+
+    // when
+    order.changeDeliveryInfo(new DeliveryInfo(deliveryId, null, null));
+
+    // then
+    assertThat(order.getDeliveryInfo().getDeliveryId())
+        .isEqualTo(deliveryId);
+  }
+
+  LineItem createLineItem(int price, int quantity) {
+    return new LineItem(null, new Money(price), quantity);
+  }
+
+  Order createOrderWithStatus(OrderState state) {
     return new Order(
-        any(Long.class),
-        any(OrderLine.class),
-        any(Money.class),
-        any(DeliveryInfo.class),
-        any(Long.class),
-        status
+        null,
+        null,
+        null,
+        new DeliveryInfo(null, null, null),
+        null,
+        state
     );
   }
 }

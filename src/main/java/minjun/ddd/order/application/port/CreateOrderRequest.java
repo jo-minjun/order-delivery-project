@@ -12,21 +12,27 @@ import lombok.ToString;
 @ToString
 public class CreateOrderRequest {
 
-  private Set<OrderProduct> orderProducts = new HashSet<>();
-  private String phoneNumber;
-  private String Address;
-  private String zipCode;
+  private Set<OrderProductRequest> orderProducts = new HashSet<>();
   private String cardNo;
+  private DeliveryInfoRequest deliveryInfo;
 
   @Getter
   @Setter
   @ToString
-  public static class OrderProduct {
+  public static class OrderProductRequest {
 
     private Long productId;
     private BigDecimal price;
     private int quantity;
   }
 
+  @Getter
+  @Setter
+  @ToString
+  public static class DeliveryInfoRequest {
 
+    private String Address;
+    private String zipCode;
+    private String phoneNumber;
+  }
 }

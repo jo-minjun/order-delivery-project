@@ -16,6 +16,7 @@ import minjun.ddd.common.domain.Money;
 import minjun.ddd.common.domain.event.order.OrderCancelledEvent;
 import minjun.ddd.common.domain.event.order.OrderCreatedEvent;
 import minjun.ddd.common.domain.event.order.OrderDeliveryCompletedEvent;
+import minjun.ddd.common.domain.event.order.OrderDeliveryInfoChangedEvent;
 import minjun.ddd.common.domain.event.order.OrderDeliveryStartedEvent;
 import minjun.ddd.common.domain.event.order.OrderPaymentApprovedEvent;
 import minjun.ddd.order.domain.state.OrderState;
@@ -99,8 +100,17 @@ public class Order extends AbstractAggregateRoot<Order> {
     this.registerEvent(new OrderCancelledEvent(this));
   }
 
-  public boolean canChangeDeliveryInfo() {
-    return this.state.canChangeDeliveryInfo();
+  public void changeDeliveryInfo(DeliveryInfo deliveryInfo) {
+    verifyCanChangeDeliveryInfo();
+    this.deliveryInfo = deliveryInfo;
+
+    this.registerEvent(new OrderDeliveryInfoChangedEvent(this));
+  }
+
+  private void verifyCanChangeDeliveryInfo() {
+    if (!this.state.canChangeDeliveryInfo()) {
+      throw new RuntimeException();
+    }
   }
 
   private static void verifyMinimumTotalAmount(Money totalAmount) {

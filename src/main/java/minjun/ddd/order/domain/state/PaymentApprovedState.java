@@ -18,4 +18,9 @@ public class PaymentApprovedState implements OrderState {
   public void orderCanceled(Order context) {
     context.changeState(new CancelledState());
   }
+
+  @Override
+  public void deliveryStarted(Order context) {
+    context.changeState(new DeliveryStartedState());
+  }
 }

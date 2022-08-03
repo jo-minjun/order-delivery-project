@@ -1,8 +1,12 @@
 package minjun.ddd.order.domain.state;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 
+import minjun.ddd.common.domain.Money;
+import minjun.ddd.order.domain.DeliveryInfo;
 import minjun.ddd.order.domain.Order;
+import minjun.ddd.order.domain.OrderLine;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +35,14 @@ class PaymentApprovedStateTest {
   @Test
   @DisplayName(value = "결제 승인 상태는 주문을 취소할 수 있다.")
   void orderCanceled() {
-    Order order = new Order(null, null, null, 1L, null, new PaymentApprovedState());
+    Order order = new Order(
+        any(Long.class),
+        any(OrderLine.class),
+        any(Money.class),
+        any(DeliveryInfo.class),
+        any(Long.class),
+        new PaymentApprovedState()
+    );
 
     order.cancelOrder();
 

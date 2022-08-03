@@ -26,11 +26,13 @@ public class OrderAppService {
     final Order order = orderRepository.findById(orderId)
         .orElseThrow(() -> new RuntimeException("Not Found OrderId: " + orderId));
     order.cancelOrder();
+    orderRepository.save(order);
   }
 
   public void changeDeliveryInfo(Long orderId, DeliveryInfoRequest deliveryInfoRequest) {
     final Order order = orderRepository.findById(orderId)
         .orElseThrow(() -> new RuntimeException("Not Found OrderId: " + orderId));
     order.changeDeliveryInfo(OrderMapper.toDeliveryInfo(deliveryInfoRequest));
+    orderRepository.save(order);
   }
 }

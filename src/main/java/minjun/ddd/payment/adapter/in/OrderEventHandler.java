@@ -7,9 +7,9 @@ import minjun.ddd.payment.application.PaymentHandlerService;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-@Component
 @Slf4j
 @RequiredArgsConstructor
+@Component(value = "PaymentOrderEventHandler")
 public class OrderEventHandler {
 
   private final PaymentHandlerService handlerService;
@@ -21,3 +21,4 @@ public class OrderEventHandler {
     handlerService.pay(event);
   }
 }
+

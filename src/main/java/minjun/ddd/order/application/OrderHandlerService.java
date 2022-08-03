@@ -26,6 +26,7 @@ public class OrderHandlerService {
 
     order.associatePayment(paymentId);
     orderService.changeState(order, event);
+    orderRepository.save(order);
   }
 
   @Transactional
@@ -38,5 +39,6 @@ public class OrderHandlerService {
 
     order.associateDelivery(deliveryId);
     orderService.changeState(order, event);
+    orderRepository.save(order);
   }
 }

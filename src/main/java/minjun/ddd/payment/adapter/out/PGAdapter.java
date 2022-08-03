@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class PGAdapter implements ExecutePayment {
 
-
   @Override
   public String execute(String cardNo) {
 

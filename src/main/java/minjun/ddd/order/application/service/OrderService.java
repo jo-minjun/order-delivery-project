@@ -25,6 +25,16 @@ public class OrderService implements OrderUsecase {
   private final PaymentPort paymentPort;
 
   @Override
+  public OrderDto getOrder(Long orderId) {
+    // orderRepository 이용
+    // deliveryPort 이용
+    // paymentPort 이용
+    // OrderDto 객체 생성
+
+    return null;
+  }
+
+  @Override
   public Long placeOrder(PlaceOrderCommand command) {
     // Order 생성
     final Set<LineItem> lineItems = command.getOrderItems().stream()
@@ -57,7 +67,7 @@ public class OrderService implements OrderUsecase {
 
   @Override
   public void changeOrder(Long orderId, ChangeOrderCommand command) {
-    final Order order = getOrder(orderId);
+    final Order order = findOrder(orderId);
 
     final Address address = command.getDeliveryInfo().getAddress();
     final Boolean responseFromDelivery = deliveryPort.changeDeliveryInfo(order.getDeliveryId(),
@@ -69,7 +79,7 @@ public class OrderService implements OrderUsecase {
 
   @Override
   public void cancelOrder(Long orderId) {
-    final Order order = getOrder(orderId);
+    final Order order = findOrder(orderId);
 
     final Boolean responseFromPayment = paymentPort.cancelPayment(order.getPaymentId());
     if (!responseFromPayment) {
@@ -82,21 +92,21 @@ public class OrderService implements OrderUsecase {
 
   @Override
   public void completeDelivery(Long orderId) {
-    final Order order = getOrder(orderId);
+    final Order order = findOrder(orderId);
     order.completeDelivery();
   }
 
   public void approvePayment(Long orderId, Long paymentId) {
-    final Order order = getOrder(orderId);
+    final Order order = findOrder(orderId);
     order.approvePayment(paymentId);
   }
 
   public void startDelivery(Long orderId) {
-    final Order order = getOrder(orderId);
+    final Order order = findOrder(orderId);
     order.startDelivery();
   }
 
-  private Order getOrder(Long orderId) {
+  private Order findOrder(Long orderId) {
     return orderRepository.findById(orderId)
         .orElseThrow(NoSuchElementException::new);
   }

@@ -7,6 +7,11 @@ import static org.junit.jupiter.api.Assertions.*;
 class OrderUsecaseTest {
 
   @Test
+  void getOrder() {
+
+  }
+
+  @Test
   void placeOrder() {
     // Order 생성, Order.paymentId, Order.state=PAYMENT_APPROVED
     // Payment 생성, Payment.authorizeCode

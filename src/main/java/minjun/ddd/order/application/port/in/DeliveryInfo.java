@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 @Builder
 public class DeliveryInfo {
+  private Long deliveryId;
   private Address address;
   private String phoneNumber;
 }

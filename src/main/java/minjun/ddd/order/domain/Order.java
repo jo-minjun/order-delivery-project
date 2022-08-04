@@ -6,6 +6,7 @@ import minjun.ddd.order.domain.state.OrderState;
 import minjun.ddd.order.domain.state.PlacedState;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "orders")
@@ -14,7 +15,9 @@ import javax.persistence.*;
 @AllArgsConstructor
 @EqualsAndHashCode(of = {"id"}, callSuper = false)
 @ToString(of = {"id", "orderLine", "totalAmount", "deliveryId", "paymentId"})
-public class Order {
+public class Order implements Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,6 +34,9 @@ public class Order {
 
   // 디자인 패턴 학습을 위해 상태 패턴 사용
   private OrderState state = new PlacedState();
+
+  @Version
+  private Integer version;
 
   public static Order placeOrder(OrderLine orderLine, String cardNo) {
     final Money totalAmount = orderLine.calcTotalAmount();

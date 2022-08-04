@@ -12,7 +12,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import minjun.ddd.common.domain.Money;
+import minjun.ddd.common.Money;
 
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

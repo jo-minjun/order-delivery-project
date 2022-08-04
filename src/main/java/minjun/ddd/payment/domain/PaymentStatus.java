@@ -2,5 +2,5 @@ package minjun.ddd.payment.domain;
 
 public enum PaymentStatus {
 
-  SUBMITTED, APPROVED, REJECTED
+  SUBMITTED, APPROVED, REJECTED, CANCELLED
 }

@@ -1,5 +1,6 @@
 package minjun.ddd.payment.domain;
 
+import java.io.Serializable;
 import lombok.*;
 
 import javax.persistence.*;
@@ -10,7 +11,9 @@ import javax.persistence.*;
 @AllArgsConstructor
 @EqualsAndHashCode(of = {"id"}, callSuper = false)
 @Getter
-public class Payment {
+public class Payment implements Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,6 +28,9 @@ public class Payment {
   private String authorizedNo;
 
   private Long orderId;
+
+  @Version
+  private Integer version;
 
   public static Payment createPayment(Long orderId, String cardNo) {
     return new Payment(orderId, cardNo);

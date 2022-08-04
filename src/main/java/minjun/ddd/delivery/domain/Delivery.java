@@ -1,5 +1,6 @@
 package minjun.ddd.delivery.domain;
 
+import java.io.Serializable;
 import lombok.*;
 
 import javax.persistence.*;
@@ -10,7 +11,9 @@ import javax.persistence.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(of = {"id"}, callSuper = false)
 @ToString(of = {"id", "address", "status"})
-public class Delivery {
+public class Delivery implements Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,6 +28,9 @@ public class Delivery {
   private DeliveryStatus status = DeliveryStatus.SUBMITTED;
 
   private Long orderId;
+
+  @Version
+  private Integer version;
 
   public static Delivery createDelivery(Long orderId, Address address, String phoneNumber) {
     return new Delivery(orderId, address, phoneNumber);

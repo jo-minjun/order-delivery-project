@@ -41,7 +41,7 @@ public class DeliveryService implements DeliveryUsecase {
   @Override
   public Boolean changeDelivery(Long deliveryId, ChangeDeliveryCommand command) {
     final Delivery delivery = deliveryRepository.findById(deliveryId)
-        .orElseThrow(() -> new NoSuchElementException());
+        .orElseThrow(NoSuchElementException::new);
 
     delivery.changeDeliveryInfo(new Address(command.getZipCode(), command.getAddress()), command.getPhoneNumber());
 
@@ -55,5 +55,20 @@ public class DeliveryService implements DeliveryUsecase {
 
     delivery.completeDelivery();
     deliveryEventPublisher.publish(new DeliveryCompletedEvent(delivery));
+  }
+
+  @Override
+  public DeliveryDto getDelivery(Long deliveryId) {
+    final Delivery delivery = deliveryRepository.findById(deliveryId)
+        .orElseThrow(NoSuchElementException::new);
+
+    final Address address = delivery.getAddress();
+    return DeliveryDto.builder()
+        .id(delivery.getId())
+        .phoneNumber(delivery.getPhoneNumber())
+        .address(address.getAddress())
+        .zipCode(address.getZipCode())
+        .orderId(delivery.getOrderId())
+        .build();
   }
 }

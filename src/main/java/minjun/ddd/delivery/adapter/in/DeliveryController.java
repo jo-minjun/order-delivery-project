@@ -3,6 +3,7 @@ package minjun.ddd.delivery.adapter.in;
 import lombok.RequiredArgsConstructor;
 import minjun.ddd.delivery.application.port.in.ChangeDeliveryCommand;
 import minjun.ddd.delivery.application.port.in.CreateDeliveryCommand;
+import minjun.ddd.delivery.application.port.in.DeliveryDto;
 import minjun.ddd.delivery.application.port.in.DeliveryUsecase;
 import org.springframework.stereotype.Component;
 
@@ -26,5 +27,9 @@ public class DeliveryController {
 
   public void completeDelivery(Long deliveryId) {
     deliveryUsecase.completeDelivery(deliveryId);
+  }
+
+  public DeliveryDto getDelivery(Long deliveryId) {
+    return deliveryUsecase.getDelivery(deliveryId);
   }
 }

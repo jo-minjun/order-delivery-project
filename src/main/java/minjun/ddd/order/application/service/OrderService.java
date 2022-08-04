@@ -26,12 +26,27 @@ public class OrderService implements OrderUsecase {
 
   @Override
   public OrderDto getOrder(Long orderId) {
-    // orderRepository 이용
-    // deliveryPort 이용
-    // paymentPort 이용
-    // OrderDto 객체 생성
+    final Order order = findOrder(orderId);
+    final DeliveryInfo deliveryInfo = deliveryPort.getDelivery(order.getDeliveryId());
+    final PaymentInfo paymentInfo = paymentPort.getPayment(order.getPaymentId());
 
-    return null;
+    final Set<OrderItem> orderItems = order.getOrderLine().getLineItems().stream()
+        .map(lineItem ->
+            OrderItem.builder()
+                .productId(lineItem.getProductId())
+                .price(lineItem.getPrice().getValue())
+                .quantity(lineItem.getQuantity())
+                .build()
+        )
+        .collect(Collectors.toSet());
+    return OrderDto.builder()
+        .orderId(order.getId())
+        .orderItems(orderItems)
+        .totalAmount(order.getTotalAmount().getValue())
+        .delivery(deliveryInfo)
+        .payment(paymentInfo)
+        .status(order.getState().getClass().getSimpleName())
+        .build();
   }
 
   @Override
@@ -110,28 +125,4 @@ public class OrderService implements OrderUsecase {
     return orderRepository.findById(orderId)
         .orElseThrow(NoSuchElementException::new);
   }
-
-//
-//
-//  @Transactional
-//  public void createOrder(CreateOrderRequest requestDto) {
-//    final Order order = OrderMapper.toOrder(requestDto);
-//
-//    orderRepository.save(order);
-//  }
-//
-//  @Transactional
-//  public void cancelOrder(Long orderId) {
-//    final Order order = orderRepository.findById(orderId)
-//        .orElseThrow(() -> new RuntimeException("Not Found OrderId: " + orderId));
-//    order.cancelOrder();
-//    orderRepository.save(order);
-//  }
-//
-//  public void changeDeliveryInfo(Long orderId, DeliveryInfoRequest deliveryInfoRequest) {
-//    final Order order = orderRepository.findById(orderId)
-//        .orElseThrow(() -> new RuntimeException("Not Found OrderId: " + orderId));
-//    order.changeDeliveryInfo(OrderMapper.toDeliveryInfo(deliveryInfoRequest));
-//    orderRepository.save(order);
-//  }
 }

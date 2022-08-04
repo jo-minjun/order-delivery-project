@@ -2,6 +2,7 @@ package minjun.ddd.payment.application;
 
 import lombok.RequiredArgsConstructor;
 import minjun.ddd.payment.application.port.in.CreatePaymentCommand;
+import minjun.ddd.payment.application.port.in.PaymentDto;
 import minjun.ddd.payment.application.port.in.PaymentUsecase;
 import minjun.ddd.payment.application.port.out.*;
 import minjun.ddd.payment.domain.Payment;
@@ -35,7 +36,7 @@ public class PaymentService implements PaymentUsecase {
   @Override
   public Boolean cancelPayment(Long paymentId) {
     final Payment payment = paymentRepository.findById(paymentId)
-        .orElseThrow(() -> new NoSuchElementException());
+        .orElseThrow(NoSuchElementException::new);
 
     final Boolean responseFromPaymentPort = paymentPort.cancel(payment.getAuthorizedNo());
     if (!responseFromPaymentPort) {
@@ -46,5 +47,19 @@ public class PaymentService implements PaymentUsecase {
     paymentEventPublisher.publish(new PaymentCancelledEvent(payment));
 
     return true;
+  }
+
+  @Override
+  public PaymentDto getPayment(Long paymentId) {
+    final Payment payment = paymentRepository.findById(paymentId)
+        .orElseThrow(NoSuchElementException::new);
+
+    return PaymentDto.builder()
+        .id(payment.getId())
+        .cardNo(payment.getCardNo())
+        .status(payment.getStatus().name())
+        .authorizedNo(payment.getAuthorizedNo())
+        .orderId(payment.getOrderId())
+        .build();
   }
 }

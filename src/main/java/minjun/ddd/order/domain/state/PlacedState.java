@@ -18,4 +18,9 @@ public class PlacedState implements OrderState {
   public void orderCanceled(Order context) {
     context.changeState(new CancelledState());
   }
+
+  @Override
+  public void paymentApproved(Order context) {
+    context.changeState(new PaymentApprovedState());
+  }
 }

@@ -17,8 +17,8 @@ import minjun.ddd.common.domain.Money;
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@EqualsAndHashCode(of = "lineItems")
-@ToString(of = "lineItems")
+@EqualsAndHashCode(of = {"lineItems"})
+@ToString(of = {"lineItems"})
 public class OrderLine {
 
   @ElementCollection

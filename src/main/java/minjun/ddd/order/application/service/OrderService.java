@@ -39,6 +39,7 @@ public class OrderService implements OrderUsecase {
                 .build()
         )
         .collect(Collectors.toSet());
+
     return OrderDto.builder()
         .orderId(order.getId())
         .orderItems(orderItems)

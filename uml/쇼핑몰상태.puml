@@ -7,30 +7,29 @@
 
 state orderapp {
     [*] --> PLACED: placeOrder()
-    PLACED --> PAYMENT_APPROVED: paymentApproved()
-    PAYMENT_APPROVED --> DELIVERY_STARTED: deliveryStarted()
-    DELIVERY_STARTED --> DELIVERY_COMPLETED: deliveryCompleted()
+    PLACED --> PAYMENT_APPROVED: approvePayment()
+    PAYMENT_APPROVED --> DELIVERY_STARTED: startDelivery()
+    DELIVERY_STARTED --> DELIVERY_COMPLETED: completeDelivery()
     DELIVERY_COMPLETED --> [*]
-    PLACED --> CANCELLED: orderCancelled()
-    PAYMENT_APPROVED --> CANCELLED: orderCancelled()
+    PLACED --> CANCELLED: cancelOrder()
+    PAYMENT_APPROVED --> CANCELLED: cancelOrder()
     CANCELLED --> [*] 
 }
 
 state deliveryapp {
     ' CANCELLED ???
     [*] --> SUBMITTED: createDelivery()
-    SUBMITTED --> STARTERD: deliveryStarted()
-    STARTERD --> COMPLETED: deliveryCompleted()
+    SUBMITTED --> STARTERD: startDelivery()
+    STARTERD --> COMPLETED: completeDelivery()
     COMPLETED --> [*]
 }
-
 
 state paymentapp {
     [*] --> P_SUBMITTED: createPayment()
     P_SUBMITTED --> P_APPROVED: approvePayment()
     P_APPROVED --> [*]
-    P_SUBMITTED --> P_REJECTED: rejectPayment()
-    P_REJECTED --> [*]
+    P_APPROVED --> P_CANCELLED: cancelPayment()
+    P_CANCELLED --> [*]
 }
 
 @enduml

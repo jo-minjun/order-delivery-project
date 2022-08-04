@@ -1,24 +1,5 @@
 @startuml
 
-' db: H2
-' 불변식 1: 배송이 시작되면 주문을 취소할 수 없다
-' 불변식 2: 취소 주문 금액은 10,000원이다
-' 불변식 3: 배송이 시작되면 배송 정보 변경 불가능하다
-' Entity, Repository, Service, ServiceTest
-' Hexagonal Architecture 적용
-' + xxxapp
-'   + adapter
-'     + in
-'       - EventHandler
-'     + out
-'       - EventPublisher
-'   + application
-'     - xxxRepository
-'     - xxxService
-'     + domain
-'       - Entity, Value, Factory, Event
-' 
-
 package productapp {
 
     class Product <<root>> {
@@ -32,66 +13,64 @@ package productapp {
 
 package orderapp {
 
-    class Order<<root>> {
+    class Order <<root>> {
         - id: Long
-        - lineItem: OrderLineItem
-        ' totalAmount 값을 가지고 있을 것인가? 실시간 계산을 할 것인가?
+        - orderLine: OrderLine
         - totalAmount: Money
-        - deliveryInfo: DeliveryInfo
-        - paymentInfo: PaymentInfo
-        - status: OrderStatus
-
+        - deliveryId: Long
+        - paymentId: Long
+        - state: OrderState
     }
 
-    enum OrderStatus {
-        ' 주문접수됨, 주문승인됨(카드 승인될 경우), 배송시작됨, 배송완료됨, 취소됨
-        - PLACED
-        - PAYMENT_APPROVED
-        - DELIVERY_STARTED
-        - DELIVERY_COMPLETED
-        - CANCELLED
+    class OrderLine <<value>> {
+        - lineItems: Set<LineItem>
     }
 
-    class OrderLineItem {
-        - elements: Set<LineItem>
-    }
-
-    class LineItem {
+    class LineItem <<value>> {
         - productId: Long
+        - price: Money
         - quantity: Integer
     }
 
-    class DeliveryInfo {
-        - address: Address
-        - phoneNumber: String
-        - deliveryId: Long
+    interface OrderState <<stateMachine>> {
+        + paymentApproved(Order): void
+        + deliveryStarted(Order): void
+        + deliveryCompleted(Order): void
+        + orderCanceled(Order): void
     }
 
-    class PaymentInfo {
-        - paymentId: Long
-        - cardNo: String
-    }
+    class PaymentApprovedState implements OrderState {}
+    class DeliveryStartedState implements OrderState {}
+    class DeliveryCompletedState implements OrderState {}
+    class CancelledState implements OrderState {}
 
-    Order --> OrderStatus
+    Order -> OrderLine
+    OrderLine o-> LineItem
+    Order -left-> OrderState
 
 }
 
 package deliveryapp {
-    
-    class Delivery<<root>> {
+
+    class Delivery <<root>> {
         - id: Long
         - address: Address
         - status: DeliveryStatus
     }
 
+    class Address <<value>> {
+        - zipCode: String
+        - address: String
+    }
+
     enum DeliveryStatus {
-        ' 접수됨, 시작됨, 완료됨, 취소됨
         - SUBMITTED
         - STARTERD
         - COMPLETED
-        ' 취소 상황이 없으면 뺄 것
-        - CANCELLED
     }
+
+    Delivery -> Address
+    Delivery -left-> DeliveryStatus
 
 }
 
@@ -101,26 +80,31 @@ package paymentapp {
         - id: Long
         - cardNo: String
         - status: PaymentStatus
-        ' 승인 번호
         - authorizedNo: String
     }
 
-    class PaymentStatus {
-        ' 접수됨, 승인됨, 거절됨
+    enum PaymentStatus {
         - SUBMITTED
         - APPROVED
-        - REJECTED
+        - CANCELLED
     }
+
+    Payment -left-> PaymentStatus
 
 }
 
 package common {
 
-    class Address {
-        - zipCode: String
-        - address: String
+    class Money <<value>> {
+        - value: BigDecimal
     }
 
 }
+
+orderapp -------> productapp
+orderapp -------> deliveryapp
+orderapp -------> paymentapp
+orderapp -------> common
+paymentapp ----> common
 
 @enduml

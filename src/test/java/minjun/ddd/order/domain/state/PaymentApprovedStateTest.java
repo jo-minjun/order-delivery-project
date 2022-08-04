@@ -40,7 +40,8 @@ class PaymentApprovedStateTest {
         any(Money.class),
         any(Long.class),
         any(Long.class),
-        new PaymentApprovedState()
+        new PaymentApprovedState(),
+        any(Integer.class)
     );
 
     order.cancelOrder();

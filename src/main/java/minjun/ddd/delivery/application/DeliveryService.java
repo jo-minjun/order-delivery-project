@@ -68,6 +68,7 @@ public class DeliveryService implements DeliveryUsecase {
         .phoneNumber(delivery.getPhoneNumber())
         .address(address.getAddress())
         .zipCode(address.getZipCode())
+        .status(delivery.getStatus().name())
         .orderId(delivery.getOrderId())
         .build();
   }

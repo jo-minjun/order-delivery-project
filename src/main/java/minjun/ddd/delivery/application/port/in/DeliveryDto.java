@@ -11,5 +11,6 @@ public class DeliveryDto {
   private String address;
   private String zipCode;
   private String phoneNumber;
+  private String status;
   private Long orderId;
 }

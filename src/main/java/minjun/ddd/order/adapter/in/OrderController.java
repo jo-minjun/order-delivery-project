@@ -12,6 +12,6 @@ public class OrderController {
   private final OrderUsecase orderUsecase;
 
   public OrderDto getOrder(Long orderId) {
-    return new OrderDto();
+    return orderUsecase.getOrder(orderId);
   }
 }

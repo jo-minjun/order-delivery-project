@@ -40,7 +40,8 @@ class PlacedStateTest {
         any(Money.class),
         any(Long.class),
         any(Long.class),
-        new PlacedState()
+        new PlacedState(),
+        any(Integer.class)
     );
 
     order.cancelOrder();

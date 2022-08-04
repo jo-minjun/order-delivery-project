@@ -6,7 +6,7 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import minjun.ddd.common.domain.Money;
+import minjun.ddd.common.Money;
 
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

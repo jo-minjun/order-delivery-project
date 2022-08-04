@@ -1,22 +1,8 @@
 package minjun.ddd.delivery.domain;
 
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-import minjun.ddd.common.domain.Address;
-import minjun.ddd.common.domain.event.DeliveryEvent;
-import minjun.ddd.common.domain.event.order.OrderPaymentApprovedEvent;
-import org.springframework.data.domain.AbstractAggregateRoot;
+import lombok.*;
+
+import javax.persistence.*;
 
 @Entity
 @Table(name = "deliveries")
@@ -24,7 +10,7 @@ import org.springframework.data.domain.AbstractAggregateRoot;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(of = {"id"}, callSuper = false)
 @ToString(of = {"id", "address", "status"})
-public class Delivery extends AbstractAggregateRoot<Delivery> {
+public class Delivery {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,37 +24,36 @@ public class Delivery extends AbstractAggregateRoot<Delivery> {
   @Enumerated(value = EnumType.STRING)
   private DeliveryStatus status = DeliveryStatus.SUBMITTED;
 
-  public void changeDeliveryInfo(Address address, String phoneNumber) {
-    verifyNotYetDeliver();
+  private Long orderId;
+
+  public static Delivery createDelivery(Long orderId, Address address, String phoneNumber) {
+    return new Delivery(orderId, address, phoneNumber);
+  }
+
+  private Delivery(Long orderId, Address address, String phoneNumber) {
+    this.orderId = orderId;
     this.address = address;
     this.phoneNumber = phoneNumber;
   }
 
-  private void verifyNotYetDeliver() {
-    if (!this.status.equals(DeliveryStatus.SUBMITTED)) {
-      throw new RuntimeException();
+  public void changeDeliveryInfo(Address address, String phoneNumber) {
+    canChangeDelivery();
+    this.address = address;
+    this.phoneNumber = phoneNumber;
+  }
+
+  private void canChangeDelivery() {
+    if (!this.status.canChangeDelivery()) {
+      throw new RuntimeException("배송 정보 수정 불가");
     }
   }
-
-  public static Delivery createDelivery(OrderPaymentApprovedEvent event) {
-    return new Delivery(event.getAddress(), event.getPhoneNumber());
-  }
-
   // 생성 후 배송 API 요청시 배송 시작, 이벤트 발생 X
-  private Delivery(Address address, String phoneNumber) {
-    this.address = address;
-    this.phoneNumber = phoneNumber;
-  }
 
-  public void startDelivery(Long orderId) {
+  public void startDelivery() {
     this.status = DeliveryStatus.STARTED;
-
-    this.registerEvent(new DeliveryEvent(this, orderId));
   }
 
-  public void completeDelivery(Long orderId) {
+  public void completeDelivery() {
     this.status = DeliveryStatus.COMPLETED;
-
-    this.registerEvent(new DeliveryEvent(this, orderId));
   }
 }

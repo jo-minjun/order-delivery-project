@@ -2,7 +2,9 @@ package minjun.ddd.order.domain.state;
 
 import minjun.ddd.order.domain.Order;
 
-public interface OrderState {
+import java.io.Serializable;
+
+public interface OrderState extends Serializable {
 
   default Integer value() {
     return 0;

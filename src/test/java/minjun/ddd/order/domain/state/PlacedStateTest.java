@@ -3,8 +3,7 @@ package minjun.ddd.order.domain.state;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 
-import minjun.ddd.common.domain.Money;
-import minjun.ddd.order.domain.DeliveryInfo;
+import minjun.ddd.common.Money;
 import minjun.ddd.order.domain.Order;
 import minjun.ddd.order.domain.OrderLine;
 import org.junit.jupiter.api.DisplayName;
@@ -39,7 +38,7 @@ class PlacedStateTest {
         any(Long.class),
         any(OrderLine.class),
         any(Money.class),
-        any(DeliveryInfo.class),
+        any(Long.class),
         any(Long.class),
         new PlacedState()
     );

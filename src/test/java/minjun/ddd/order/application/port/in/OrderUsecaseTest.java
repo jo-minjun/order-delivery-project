@@ -1,10 +1,9 @@
 package minjun.ddd.order.application.port.in;
 
+import static minjun.ddd.Fixture.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.math.BigDecimal;
-import java.util.Set;
 import minjun.ddd.delivery.application.port.in.DeliveryUsecase;
 import minjun.ddd.order.application.port.out.OrderRepository;
 import minjun.ddd.order.domain.Order;
@@ -140,52 +139,5 @@ class OrderUsecaseTest {
 
     assertThatThrownBy(() -> orderUsecase.cancelOrder(orderId))
         .isInstanceOf(RuntimeException.class);
-  }
-
-  ChangeOrderCommand createChangeOrderCommand() {
-    return new ChangeOrderCommand(createDeliveryInfo(2));
-  }
-
-  PlaceOrderCommand createPlaceOrderCommand(Boolean isOverMinumum) {
-    return PlaceOrderCommand.builder()
-        .orderItems(createOrderItems(isOverMinumum))
-        .deliveryInfo(createDeliveryInfo(1))
-        .paymentInfo(createPaymentInfo())
-        .build();
-  }
-
-  PaymentInfo createPaymentInfo() {
-    return PaymentInfo.builder()
-        .cardNo("0000")
-        .build();
-  }
-
-  DeliveryInfo createDeliveryInfo(int i) {
-    return DeliveryInfo.builder()
-        .address(Address.builder()
-            .zipCode("대한민국 어딘가 우편번호" + i)
-            .address("대한민국 어딘가 주소" + i)
-            .build()
-        )
-        .phoneNumber("010-0000-0000")
-        .build();
-  }
-
-  Set<OrderItem> createOrderItems(Boolean isOverMinimum) {
-    if (isOverMinimum) {
-      return Set.of(createOrderItem(1L, new BigDecimal(10000L), 1));
-    }
-    return Set.of(
-        createOrderItem(1L, new BigDecimal(1000), 9),
-        createOrderItem(1L, new BigDecimal(999), 1)
-    );
-  }
-
-  OrderItem createOrderItem(Long id, BigDecimal price, Integer quantity) {
-    return OrderItem.builder()
-        .productId(id)
-        .price(price)
-        .quantity(quantity)
-        .build();
   }
 }

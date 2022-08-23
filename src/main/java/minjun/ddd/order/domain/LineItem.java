@@ -18,13 +18,15 @@ public class LineItem {
 
   private Long productId;
 
+  private String productName;
+
   // 상품을 구매한 시점의 가격
   private Money price;
 
   @Column(nullable = false)
   private Integer quantity;
 
-  public LineItem(Long productId, Money price, Integer quantity) {
+  public LineItem(Long productId, String productName, Money price, Integer quantity) {
     this.productId = productId;
     this.price = price;
     this.quantity = quantity;

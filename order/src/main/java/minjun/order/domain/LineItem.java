@@ -28,6 +28,7 @@ public class LineItem {
 
   public LineItem(Long productId, String productName, Money price, Integer quantity) {
     this.productId = productId;
+    this.productName = productName;
     this.price = price;
     this.quantity = quantity;
   }

@@ -1,6 +1,6 @@
 package minjun.order.application.port.out;
 
-import minjun.order.application.port.in.DeliveryInfo;
+import minjun.order.application.port.DeliveryInfo;
 
 public interface DeliveryPort {
 

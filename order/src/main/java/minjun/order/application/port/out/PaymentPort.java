@@ -1,6 +1,6 @@
 package minjun.order.application.port.out;
 
-import minjun.order.application.port.in.PaymentInfo;
+import minjun.order.application.port.PaymentInfo;
 import minjun.sharedkernel.domain.Money;
 
 public interface PaymentPort {

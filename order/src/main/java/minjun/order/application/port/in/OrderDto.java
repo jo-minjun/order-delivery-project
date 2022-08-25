@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.util.Set;
 import lombok.Builder;
 import lombok.Data;
+import minjun.order.application.port.DeliveryInfo;
+import minjun.order.application.port.PaymentInfo;
 
 @Data
 @Builder

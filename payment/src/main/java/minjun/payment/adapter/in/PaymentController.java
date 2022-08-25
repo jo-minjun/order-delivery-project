@@ -4,24 +4,32 @@ import lombok.RequiredArgsConstructor;
 import minjun.payment.application.port.in.CreatePaymentCommand;
 import minjun.payment.application.port.in.PaymentDto;
 import minjun.payment.application.port.in.PaymentUsecase;
-import minjun.sharedkernel.domain.Money;
-import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Component
+@RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/payment")
 public class PaymentController {
 
   private final PaymentUsecase paymentUsecase;
 
-  public Long createPayment(Long orderId, String cardNo, Money amount) {
-    return paymentUsecase.createPayment(new CreatePaymentCommand(orderId, cardNo, amount));
+  @PostMapping
+  public Long createPayment(@RequestBody CreatePaymentCommand command) {
+    return paymentUsecase.createPayment(command);
   }
 
-  public Boolean cancelPayment(Long paymentId) {
+  @PostMapping("/{paymentId}")
+  public Boolean cancelPayment(@PathVariable Long paymentId) {
     return paymentUsecase.cancelPayment(paymentId);
   }
 
-  public PaymentDto getPayment(Long paymentId) {
+  @GetMapping("/{paymentId}")
+  public PaymentDto getPayment(@PathVariable Long paymentId) {
     return paymentUsecase.getPayment(paymentId);
   }
 }

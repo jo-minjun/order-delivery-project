@@ -1,4 +1,4 @@
-package minjun.order.application.port.in;
+package minjun.order.application.port;
 
 import lombok.Builder;
 import lombok.Data;

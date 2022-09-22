@@ -2,6 +2,9 @@ server:
   port: 8080
 
 spring:
+  main:
+    web-application-type: reactive
+
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
     url: jdbc:mysql://localhost:3306/order-delivery

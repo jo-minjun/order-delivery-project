@@ -1,1 +1,9 @@
 rootProject.name = 'ddd'
+
+include(
+        'sharedkernel',
+        'payment',
+        'product',
+        'delivery',
+        'order'
+)

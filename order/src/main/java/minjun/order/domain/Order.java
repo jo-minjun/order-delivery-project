@@ -1,5 +1,6 @@
 package minjun.order.domain;
 
+import java.io.Serial;
 import java.io.Serializable;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -10,7 +11,6 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -23,10 +23,10 @@ import minjun.sharedkernel.domain.Money;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@EqualsAndHashCode(of = {"id"}, callSuper = false)
 @ToString(of = {"id", "orderLine", "totalAmount", "deliveryId", "paymentId"})
 public class Order implements Serializable {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   @Id

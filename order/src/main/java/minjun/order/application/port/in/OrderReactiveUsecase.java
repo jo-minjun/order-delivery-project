@@ -6,8 +6,8 @@ public interface OrderReactiveUsecase {
 
   Mono<OrderDto> getOrder(Long orderId);
   Mono<Long> placeOrder(PlaceOrderCommand command);
-  void changeOrder(Long orderId, ChangeOrderCommand command);
-  void startDelivery(Long orderId);
-  void completeDelivery(Long orderId);
-  void cancelOrder(Long orderId);
+  Mono<Void> changeOrder(Long orderId, ChangeOrderCommand command);
+  Mono<Void> startDelivery(Long orderId);
+  Mono<Void> completeDelivery(Long orderId);
+  Mono<Void> cancelOrder(Long orderId);
 }

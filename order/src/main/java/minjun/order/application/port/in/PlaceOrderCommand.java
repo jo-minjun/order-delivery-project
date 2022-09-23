@@ -10,7 +10,7 @@ import minjun.order.application.port.PaymentInfo;
 @Builder
 public class PlaceOrderCommand {
 
-  private Set<minjun.order.application.port.in.OrderItem> orderItems;
+  private Set<OrderItem> orderItems;
   private PaymentInfo paymentInfo;
   private DeliveryInfo deliveryInfo;
 }

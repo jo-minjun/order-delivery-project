@@ -23,4 +23,9 @@ public class PlacedState implements OrderState {
   public void paymentApproved(Order context) {
     context.changeState(new PaymentApprovedState());
   }
+
+  @Override
+  public void deliveryStarted(Order context) {
+    context.changeState(new DeliveryStartedState());
+  }
 }

@@ -2,13 +2,15 @@ package minjun.payment.application.port.in;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import minjun.sharedkernel.domain.Money;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class CreatePaymentCommand {
 
-  private final Long orderId;
-  private final String cardNo;
-  private final Money amount;
+  private Long orderId;
+  private String cardNo;
+  private Money amount;
 }

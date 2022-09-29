@@ -14,7 +14,7 @@ import minjun.order.application.port.PaymentInfo;
 import minjun.order.application.port.in.ChangeOrderCommand;
 import minjun.order.application.port.in.OrderDto;
 import minjun.order.application.port.in.OrderItem;
-import minjun.order.application.port.in.OrderReactiveUsecase;
+import minjun.order.application.port.in.OrderUsecase;
 import minjun.order.application.port.in.PlaceOrderCommand;
 import minjun.order.application.port.out.DeliveryReactivePort;
 import minjun.order.application.port.out.OrderCancelledEvent;
@@ -34,7 +34,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @RequiredArgsConstructor
 @Transactional
-public class OrderService implements OrderReactiveUsecase {
+public class OrderService implements OrderUsecase {
 
   private final OrderEventPublisher orderEventPublisher;
   private final OrderRepository orderRepository;

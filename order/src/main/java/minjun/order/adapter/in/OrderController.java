@@ -3,7 +3,7 @@ package minjun.order.adapter.in;
 import lombok.RequiredArgsConstructor;
 import minjun.order.application.port.in.ChangeOrderCommand;
 import minjun.order.application.port.in.OrderDto;
-import minjun.order.application.port.in.OrderReactiveUsecase;
+import minjun.order.application.port.in.OrderUsecase;
 import minjun.order.application.port.in.PlaceOrderCommand;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,7 +21,7 @@ import reactor.core.publisher.Mono;
 @RequestMapping("api/order")
 public class OrderController {
 
-  private final OrderReactiveUsecase orderUsecase;
+  private final OrderUsecase orderUsecase;
 
   @GetMapping("/{orderId}")
   public Mono<ResponseEntity<OrderDto>> getOrder(@PathVariable Long orderId) {

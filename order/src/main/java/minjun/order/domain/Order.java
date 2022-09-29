@@ -2,6 +2,7 @@ package minjun.order.domain;
 
 import java.io.Serial;
 import java.io.Serializable;
+import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -17,6 +18,7 @@ import lombok.ToString;
 import minjun.order.domain.state.OrderState;
 import minjun.order.domain.state.PlacedState;
 import minjun.sharedkernel.domain.Money;
+import minjun.sharedkernel.domain.MoneyConverter;
 
 @Entity
 @Table(name = "orders")
@@ -36,6 +38,7 @@ public class Order implements Serializable {
   @Embedded
   private OrderLine orderLine;
 
+  @Convert(converter = MoneyConverter.class)
   private Money totalAmount = Money.ZERO;
 
   private Long deliveryId;

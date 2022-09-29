@@ -4,6 +4,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,7 @@ import minjun.order.application.port.PaymentInfo;
 import minjun.order.application.port.in.ChangeOrderCommand;
 import minjun.order.application.port.in.OrderDto;
 import minjun.order.application.port.in.OrderItem;
-import minjun.order.application.port.in.OrderReactiveUsecase;
+import minjun.order.application.port.in.OrderUsecase;
 import minjun.order.application.port.in.PlaceOrderCommand;
 import minjun.order.application.port.out.DeliveryReactivePort;
 import minjun.order.application.port.out.OrderCancelledEvent;
@@ -34,7 +35,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @RequiredArgsConstructor
 @Transactional
-public class OrderService implements OrderReactiveUsecase {
+public class OrderService implements OrderUsecase {
 
   private final OrderEventPublisher orderEventPublisher;
   private final OrderRepository orderRepository;
@@ -43,7 +44,7 @@ public class OrderService implements OrderReactiveUsecase {
 
   @Override
   public Mono<OrderDto> getOrder(Long orderId) {
-    return Mono.fromFuture(findOrder(orderId))
+    return Mono.fromCompletionStage(findOrder(orderId))
         .flatMap(order -> {
           final var deliveryInfo = deliveryPort.getDelivery(order.getDeliveryId());
           final var paymentInfo = paymentPort.getPayment(order.getPaymentId());
@@ -58,7 +59,14 @@ public class OrderService implements OrderReactiveUsecase {
         .flatMap(order -> {
           orderEventPublisher.publish(new OrderPlacedEvent(order, command));
 
-          return Mono.fromFuture(supplyAsync(() -> orderRepository.save(order)))
+//          return Mono.fromCompletionStage(supplyAsync(() -> orderRepository.save(order)))
+//              .flatMap(o ->
+//                  createPayment(command, order)
+//                      .doOnNext(unused -> createDelivery(command, order))
+//                      .then(Mono.just(o))
+//              )
+//              .flatMap(o -> Mono.just(o.getId()));
+          return Mono.fromCompletionStage(supplyAsync(() -> orderRepository.save(order)))
               .flatMap(o -> createPayment(command, order).then(Mono.just(o)))
               .flatMap(o -> createDelivery(command, order).then(Mono.just(o)))
               .flatMap(o -> Mono.just(o.getId()));
@@ -67,43 +75,40 @@ public class OrderService implements OrderReactiveUsecase {
 
   @Override
   public Mono<Void> changeOrder(Long orderId, ChangeOrderCommand command) {
-    return Mono.fromFuture(findOrder(orderId))
-        .flatMap(order -> changeDelivery(command, order))
-        .then();
+    return Mono.fromCompletionStage(findOrder(orderId))
+        .flatMap(order -> changeDelivery(command, order));
   }
 
   @Override
   public Mono<Void> startDelivery(Long orderId) {
-    return Mono.fromFuture(findOrder(orderId))
+    return Mono.fromCompletionStage(findOrder(orderId))
         .doOnNext(Order::startDelivery)
         .then();
   }
 
   @Override
   public Mono<Void> completeDelivery(Long orderId) {
-    return Mono.fromFuture(findOrder(orderId))
+    return Mono.fromCompletionStage(findOrder(orderId))
         .doOnNext(Order::completeDelivery)
         .then();
   }
 
   @Override
   public Mono<Void> cancelOrder(Long orderId) {
-    return Mono.fromFuture(findOrder(orderId))
-        .flatMap(this::cancelPayment)
-        .then();
+    return Mono.fromCompletionStage(findOrder(orderId))
+        .flatMap(this::cancelPayment);
   }
 
   private Mono<Void> cancelPayment(Order order) {
     return paymentPort.cancelPayment(order.getPaymentId())
-        .doOnNext(isSuccess -> {
+        .flatMap(isSuccess -> {
           if (isSuccess) {
             order.cancelOrder();
             orderEventPublisher.publish(new OrderCancelledEvent(order));
-          } else {
-            throw new RuntimeException("결제 취소 실패");
+            return Mono.empty();
           }
-        })
-        .then();
+          return Mono.error(new RuntimeException("결제 취소 실패"));
+        });
   }
 
   private Mono<OrderDto> toOrderDto(
@@ -111,16 +116,18 @@ public class OrderService implements OrderReactiveUsecase {
       Mono<DeliveryInfo> deliveryInfo,
       Mono<PaymentInfo> paymentInfo
   ) {
+    final Set<OrderItem> orderItems = order.getOrderLine().getLineItems().stream()
+        .map(lineItem -> OrderItem.builder()
+            .productId(lineItem.getProductId())
+            .price(lineItem.getPrice().getValue())
+            .quantity(lineItem.getQuantity())
+            .build())
+        .collect(Collectors.toSet());
+
     return Mono.zip(deliveryInfo, paymentInfo)
         .map(tuple -> OrderDto.builder()
             .orderId(order.getId())
-            .orderItems(order.getOrderLine().getLineItems().stream()
-                .map(lineItem -> OrderItem.builder()
-                    .productId(lineItem.getProductId())
-                    .price(lineItem.getPrice().getValue())
-                    .quantity(lineItem.getQuantity())
-                    .build())
-                .collect(Collectors.toSet()))
+            .orderItems(orderItems)
             .totalAmount(order.getTotalAmount().getValue())
             .delivery(tuple.getT1())
             .payment(tuple.getT2())
@@ -137,8 +144,10 @@ public class OrderService implements OrderReactiveUsecase {
             address.getAddress(),
             command.getDeliveryInfo().getPhoneNumber()
         )
-        .doOnNext(order::associateDelivery)
-        .then();
+        .flatMap(deliveryId -> {
+          order.associateDelivery(deliveryId);
+          return Mono.empty();
+        });
   }
 
   private Mono<Void> createPayment(PlaceOrderCommand command, Order order) {
@@ -147,21 +156,27 @@ public class OrderService implements OrderReactiveUsecase {
             command.getPaymentInfo().getCardNo(),
             order.getTotalAmount()
         )
-        .doOnNext(order::approvePayment)
-        .then();
+        .flatMap(paymentId -> {
+          order.approvePayment(paymentId);
+          return Mono.empty();
+        });
   }
 
   private Mono<Order> createOrder(PlaceOrderCommand command) {
-    return Mono.just(command.getOrderItems().stream()
-            .map(orderItem -> new LineItem(
-                orderItem.getProductId(),
-                orderItem.getProductName(),
-                new Money(orderItem.getPrice()),
-                orderItem.getQuantity()
-            ))
-            .collect(Collectors.toSet()))
-        .map(lineItems ->
-            Order.placeOrder(new OrderLine(lineItems), command.getPaymentInfo().getCardNo()));
+    final Set<LineItem> orderItems = command.getOrderItems().stream()
+        .map(orderItem -> new LineItem(
+            orderItem.getProductId(),
+            orderItem.getProductName(),
+            new Money(orderItem.getPrice()),
+            orderItem.getQuantity()
+        ))
+        .collect(Collectors.toSet());
+
+    return Mono.just(orderItems)
+        .map(lineItems -> Order.placeOrder(
+            new OrderLine(lineItems),
+            command.getPaymentInfo().getCardNo()
+        ));
   }
 
   private Mono<Void> changeDelivery(ChangeOrderCommand command, Order order) {
@@ -173,17 +188,13 @@ public class OrderService implements OrderReactiveUsecase {
             address.getAddress(),
             command.getDeliveryInfo().getPhoneNumber()
         )
-        .doOnNext(isSuccess -> {
-          if (!isSuccess) {
-            throw new RuntimeException("배송 정보 변경 실패");
-          }
-        })
-        .then();
+        .flatMap(isSuccess ->
+            isSuccess ? Mono.empty() : Mono.error(new RuntimeException("배송 정보 변경 실패")));
   }
 
   private CompletableFuture<Order> findOrder(Long orderId) {
-    return supplyAsync(() -> orderRepository.findById(orderId)
-        .orElseThrow(NoSuchElementException::new))
-        .orTimeout(5000L, MILLISECONDS);
+    return supplyAsync(
+        () -> orderRepository.findById(orderId).orElseThrow(NoSuchElementException::new)
+    ).orTimeout(5000L, MILLISECONDS);
   }
 }

@@ -1,18 +1,5 @@
 plugins {
-    id 'org.springframework.boot' version '2.7.2'
-    id 'io.spring.dependency-management' version '1.0.12.RELEASE'
-    id 'java'
-    id 'io.freefair.lombok' version '6.3.0'
-}
-
-group = 'minjun'
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '17'
-
-dependencies {
-    runtimeOnly 'mysql:mysql-connector-java'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    id 'java-library'
 }
 
 bootJar {
@@ -21,8 +8,4 @@ bootJar {
 
 jar {
     enabled = true
-}
-
-tasks.named('test') {
-    useJUnitPlatform()
 }

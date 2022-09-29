@@ -4,11 +4,13 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Getter
 @EqualsAndHashCode(of = {"value"})
 @ToString(of = {"value"})
+@NoArgsConstructor
 public class Money implements Serializable {
 
     public static final Money ZERO = new Money(BigDecimal.ZERO);

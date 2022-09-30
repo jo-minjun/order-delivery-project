@@ -17,8 +17,12 @@ public class ReactiveDeliveryAdapter implements DeliveryReactivePort {
   private static final String DELIVERY_URL = "localhost:8083/api/delivery";
 
   @Override
-  public Mono<Long> createDelivery(Long orderId, String zipCode, String address,
-      String phoneNumber) {
+  public Mono<Long> createDelivery(
+      Long orderId,
+      String zipCode,
+      String address,
+      String phoneNumber
+  ) {
     return webClient.post()
         .uri(DELIVERY_URL)
         .bodyValue(new CreateDeliveryRequest(orderId, zipCode, address, phoneNumber))
@@ -27,19 +31,23 @@ public class ReactiveDeliveryAdapter implements DeliveryReactivePort {
   }
 
   @Override
-  public Mono<Boolean> changeDeliveryInfo(Long deliveryId, String zipCode, String address,
-      String phoneNumber) {
+  public Mono<Boolean> changeDeliveryInfo(
+      Long orderId,
+      String zipCode,
+      String address,
+      String phoneNumber
+  ) {
     return webClient.patch()
-        .uri(DELIVERY_URL + "/" + deliveryId + "/change-info")
+        .uri(DELIVERY_URL + "/orders/" + orderId + "/change-info")
         .bodyValue(new ChangeDeliveryRequest(zipCode, address, phoneNumber))
         .retrieve()
         .bodyToMono(Boolean.class);
   }
 
   @Override
-  public Mono<DeliveryInfo> getDelivery(Long deliveryId) {
+  public Mono<DeliveryInfo> getDelivery(Long orderId) {
     return webClient.get()
-        .uri(DELIVERY_URL + "/" + deliveryId)
+        .uri(DELIVERY_URL + "/orders/" + orderId)
         .retrieve()
         .bodyToMono(DeliveryDto.class)
         .map(deliveryDto -> {

@@ -19,17 +19,17 @@ public class PaymentController {
   private final PaymentUsecase paymentUsecase;
 
   @PostMapping
-  public Long createPayment(@RequestBody CreatePaymentCommand command) {
+  public PaymentDto createPayment(@RequestBody CreatePaymentCommand command) {
     return paymentUsecase.createPayment(command);
   }
 
-  @PostMapping("/{paymentId}")
-  public Boolean cancelPayment(@PathVariable Long paymentId) {
-    return paymentUsecase.cancelPayment(paymentId);
+  @PostMapping("/orders/{orderId}")
+  public Boolean cancelPayment(@PathVariable Long orderId) {
+    return paymentUsecase.cancelPayment(orderId);
   }
 
-  @GetMapping("/{paymentId}")
-  public PaymentDto getPayment(@PathVariable Long paymentId) {
-    return paymentUsecase.getPayment(paymentId);
+  @GetMapping("/orders/{orderId}")
+  public PaymentDto getPayment(@PathVariable Long orderId) {
+    return paymentUsecase.getPayment(orderId);
   }
 }

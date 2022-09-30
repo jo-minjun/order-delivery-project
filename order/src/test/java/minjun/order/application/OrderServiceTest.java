@@ -68,7 +68,7 @@ class OrderServiceTest {
     when(deliveryPort.createDelivery(any(), any(), any(), any()))
         .thenReturn(Mono.just(Fixture.getDeliveryInfo().getDeliveryId()));
     when(paymentPort.createPayment(any(), any(), any()))
-        .thenReturn(Mono.just(Fixture.getPaymentInfo().getPaymentId()));
+        .thenReturn(Mono.just(Fixture.getPaymentInfo()));
 
     StepVerifier.create(target.placeOrder(Fixture.getPlaceOrderCommand(10_000)))
         .assertNext(orderId -> {

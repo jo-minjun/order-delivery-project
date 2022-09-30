@@ -2,7 +2,7 @@ package minjun.delivery.adapter.in;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import minjun.delivery.application.DeliveryService;
+import minjun.delivery.application.port.in.DeliveryUsecase;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -10,6 +10,6 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class DeliveryDomainEventHandler {
 
-  private final DeliveryService deliveryService;
+  private final DeliveryUsecase deliveryUsecase;
 
 }

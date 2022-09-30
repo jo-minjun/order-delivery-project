@@ -20,8 +20,8 @@ public class DeliveryController {
   private final DeliveryUsecase deliveryUsecase;
 
   @PostMapping
-  public Long createDelivery(@RequestBody CreateDeliveryCommand command) {
-    return deliveryUsecase.createDelivery(command);
+  public void createDelivery(@RequestBody CreateDeliveryCommand command) {
+    deliveryUsecase.createDelivery(command);
   }
 
   @PostMapping("/{deliveryId}/start")
@@ -29,9 +29,9 @@ public class DeliveryController {
     deliveryUsecase.startDelivery(deliveryId);
   }
 
-  @PostMapping("/{deliveryId}/change-info")
-  public Boolean changeDeliveryInfo(@PathVariable Long deliveryId, @RequestBody ChangeDeliveryCommand command) {
-    return deliveryUsecase.changeDelivery(deliveryId, command);
+  @PostMapping("/orders/{orderId}/change-info")
+  public Boolean changeDeliveryInfo(@PathVariable Long orderId, @RequestBody ChangeDeliveryCommand command) {
+    return deliveryUsecase.changeDelivery(orderId, command);
   }
 
   @PostMapping("/{deliveryId}/complete")
@@ -39,8 +39,8 @@ public class DeliveryController {
     deliveryUsecase.completeDelivery(deliveryId);
   }
 
-  @GetMapping("/{deliveryId}")
-  public DeliveryDto getDelivery(@PathVariable Long deliveryId) {
-    return deliveryUsecase.getDelivery(deliveryId);
+  @GetMapping("/orders/{orderId}")
+  public DeliveryDto getDelivery(@PathVariable Long orderId) {
+    return deliveryUsecase.getDelivery(orderId);
   }
 }

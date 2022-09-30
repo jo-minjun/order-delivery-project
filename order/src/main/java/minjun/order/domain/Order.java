@@ -25,7 +25,7 @@ import minjun.sharedkernel.domain.MoneyConverter;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@ToString(of = {"id", "orderLine", "totalAmount", "deliveryId", "paymentId"})
+@ToString(of = {"id", "orderLine", "totalAmount"})
 public class Order implements Serializable {
 
   @Serial
@@ -35,36 +35,31 @@ public class Order implements Serializable {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  private Long userId;
+
   @Embedded
   private OrderLine orderLine;
 
   @Convert(converter = MoneyConverter.class)
   private Money totalAmount = Money.ZERO;
 
-  private Long deliveryId;
-
-  private Long paymentId;
-
   // 디자인 패턴 학습을 위해 상태 패턴 사용
   private OrderState state = new PlacedState();
-
+  
   @Version
   private Integer version;
 
-  public static Order placeOrder(OrderLine orderLine, String cardNo) {
+  public static Order placeOrder(Long userId, OrderLine orderLine) {
     final Money totalAmount = orderLine.calcTotalAmount();
     verifyMinimumTotalAmount(totalAmount);
 
-    return new Order(orderLine, totalAmount, cardNo);
+    return new Order(userId, orderLine, totalAmount);
   }
 
-  private Order(OrderLine orderLine, Money totalAmount, String cardNo) {
+  private Order(Long userId, OrderLine orderLine, Money totalAmount) {
+    this.userId = userId;
     this.orderLine = orderLine;
     this.totalAmount = totalAmount;
-  }
-
-  public void associateDelivery(Long deliveryId) {
-    this.deliveryId = deliveryId;
   }
 
   public void changeState(OrderState newState) {
@@ -72,7 +67,6 @@ public class Order implements Serializable {
   }
 
   public void approvePayment(Long paymentId) {
-    this.paymentId = paymentId;
     this.state.paymentApproved(this);
   }
 
@@ -86,12 +80,6 @@ public class Order implements Serializable {
 
   public void cancelOrder() {
     this.state.orderCanceled(this);
-  }
-
-  private void verifyCanChangeDeliveryInfo() {
-    if (!this.state.canChangeDeliveryInfo()) {
-      throw new RuntimeException();
-    }
   }
 
   private static void verifyMinimumTotalAmount(Money totalAmount) {

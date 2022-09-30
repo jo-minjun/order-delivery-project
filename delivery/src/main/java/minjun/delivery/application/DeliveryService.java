@@ -7,7 +7,6 @@ import minjun.delivery.application.port.in.CreateDeliveryCommand;
 import minjun.delivery.application.port.in.DeliveryDto;
 import minjun.delivery.application.port.in.DeliveryUsecase;
 import minjun.delivery.application.port.out.DeliveryCompletedEvent;
-import minjun.delivery.application.port.out.DeliveryCreatedEvent;
 import minjun.delivery.application.port.out.DeliveryEventPublisher;
 import minjun.delivery.application.port.out.DeliveryRepository;
 import minjun.delivery.application.port.out.DeliveryStartedEvent;
@@ -30,7 +29,6 @@ public class DeliveryService implements DeliveryUsecase {
         new Address(command.getZipCode(), command.getAddress()), command.getPhoneNumber());
 
     deliveryRepository.save(delivery);
-    deliveryEventPublisher.publish(new DeliveryCreatedEvent(delivery));
 
     return delivery.getId();
   }
@@ -45,13 +43,17 @@ public class DeliveryService implements DeliveryUsecase {
   }
 
   @Override
-  public Boolean changeDelivery(Long deliveryId, ChangeDeliveryCommand command) {
-    final Delivery delivery = deliveryRepository.findById(deliveryId)
+  public Boolean changeDelivery(Long orderId, ChangeDeliveryCommand command) {
+    final Delivery delivery = deliveryRepository.findByOrderId(orderId)
         .orElseThrow(NoSuchElementException::new);
 
-    delivery.changeDeliveryInfo(new Address(command.getZipCode(), command.getAddress()), command.getPhoneNumber());
-
-    return true;
+    try {
+      delivery.changeDeliveryInfo(new Address(command.getZipCode(), command.getAddress()),
+          command.getPhoneNumber());
+      return true;
+    } catch (RuntimeException e) {
+      return false;
+    }
   }
 
   @Override
@@ -64,8 +66,8 @@ public class DeliveryService implements DeliveryUsecase {
   }
 
   @Override
-  public DeliveryDto getDelivery(Long deliveryId) {
-    final Delivery delivery = deliveryRepository.findById(deliveryId)
+  public DeliveryDto getDelivery(Long orderId) {
+    final Delivery delivery = deliveryRepository.findByOrderId(orderId)
         .orElseThrow(NoSuchElementException::new);
 
     final Address address = delivery.getAddress();

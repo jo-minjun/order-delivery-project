@@ -17,26 +17,26 @@ public class ReactivePaymentAdapter implements PaymentReactivePort {
   private static final String PAYMENT_URL = "localhost:8081/api/payment";
 
   @Override
-  public Mono<Long> createPayment(Long orderId, String cardNo, Money amount) {
+  public Mono<PaymentInfo> createPayment(Long orderId, String cardNo, Money amount) {
     return webClient.post()
         .uri(PAYMENT_URL)
         .bodyValue(new CreatePaymentCommand(orderId, cardNo, amount))
         .retrieve()
-        .bodyToMono(Long.class);
+        .bodyToMono(PaymentInfo.class);
   }
 
   @Override
-  public Mono<Boolean> cancelPayment(Long paymentId) {
+  public Mono<Boolean> cancelPayment(Long orderId) {
     return webClient.post()
-        .uri(PAYMENT_URL + "/" + paymentId)
+        .uri(PAYMENT_URL + "/orders/" + orderId)
         .retrieve()
         .bodyToMono(Boolean.class);
   }
 
   @Override
-  public Mono<PaymentInfo> getPayment(Long paymentId) {
+  public Mono<PaymentInfo> getPayment(Long orderId) {
     return webClient.get()
-        .uri(PAYMENT_URL + "/" + paymentId)
+        .uri(PAYMENT_URL + "/orders/" + orderId)
         .retrieve()
         .bodyToMono(PaymentInfo.class);
   }

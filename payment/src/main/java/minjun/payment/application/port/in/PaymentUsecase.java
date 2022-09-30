@@ -2,8 +2,8 @@ package minjun.payment.application.port.in;
 
 public interface PaymentUsecase {
 
-  Long createPayment(CreatePaymentCommand command);
-  Boolean cancelPayment(Long paymentId);
-  PaymentDto getPayment(Long paymentId);
+  PaymentDto createPayment(CreatePaymentCommand command);
+  Boolean cancelPayment(Long orderId);
+  PaymentDto getPayment(Long orderId);
 }
 

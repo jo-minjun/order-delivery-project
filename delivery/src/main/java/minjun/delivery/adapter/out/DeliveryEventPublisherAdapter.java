@@ -17,6 +17,6 @@ public class DeliveryEventPublisherAdapter implements DeliveryEventPublisher {
   @Override
   public void publish(DeliveryEvent event) {
     publisher.publishEvent(event);
-    log.info("Order Event Published: {} {}", event.getDelivery(), event.getTimestamp());
+    log.info("Delivery Event Published: {} {}", event.getDelivery(), event.getTimestamp());
   }
 }

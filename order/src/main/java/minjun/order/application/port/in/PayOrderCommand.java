@@ -1,16 +1,17 @@
 package minjun.order.application.port.in;
 
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import minjun.order.application.port.DeliveryInfo;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PlaceOrderCommand {
+public class PayOrderCommand {
 
-  private Set<OrderItem> orderItems;
+  private String cardNo;
+  private DeliveryInfo deliveryInfo;
 }

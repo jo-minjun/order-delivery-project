@@ -1,11 +1,11 @@
 package minjun.payment.application;
 
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import minjun.payment.application.port.in.CreatePaymentCommand;
 import minjun.payment.application.port.in.PaymentDto;
 import minjun.payment.application.port.in.PaymentUsecase;
-import minjun.payment.application.port.out.PaymentApprovedEvent;
 import minjun.payment.application.port.out.PaymentCancelledEvent;
 import minjun.payment.application.port.out.PaymentEventPublisher;
 import minjun.payment.application.port.out.PaymentPort;
@@ -24,21 +24,32 @@ public class PaymentService implements PaymentUsecase {
   private final PaymentEventPublisher paymentEventPublisher;
 
   @Override
-  public Long createPayment(CreatePaymentCommand command) {
+  public PaymentDto createPayment(CreatePaymentCommand command) {
     final Payment payment = Payment.createPayment(command.getOrderId(), command.getCardNo());
 
-    final String authorizedNo = paymentPort.execute(command.getCardNo(), command.getAmount());
+    final Optional<String> result = paymentPort.execute(command.getCardNo(), command.getAmount());
+    if (result.isPresent()) {
+      payment.approvePayment(result.get());
+    } else {
+      payment.rejectPayment();
+    }
 
-    payment.approvePayment(authorizedNo);
     paymentRepository.save(payment);
-    paymentEventPublisher.publish(new PaymentApprovedEvent(payment));
 
-    return payment.getId();
+    return toDto(payment);
   }
 
   @Override
-  public Boolean cancelPayment(Long paymentId) {
-    final Payment payment = paymentRepository.findById(paymentId)
+  public PaymentDto getPayment(Long orderId) {
+    final Payment payment = paymentRepository.findByOrderId(orderId)
+        .orElseThrow(NoSuchElementException::new);
+
+    return toDto(payment);
+  }
+
+  @Override
+  public Boolean cancelPayment(Long orderId) {
+    final Payment payment = paymentRepository.findByOrderId(orderId)
         .orElseThrow(NoSuchElementException::new);
 
     final Boolean responseFromPaymentPort = paymentPort.cancel(payment.getAuthorizedNo());
@@ -52,11 +63,7 @@ public class PaymentService implements PaymentUsecase {
     return true;
   }
 
-  @Override
-  public PaymentDto getPayment(Long paymentId) {
-    final Payment payment = paymentRepository.findById(paymentId)
-        .orElseThrow(NoSuchElementException::new);
-
+  private PaymentDto toDto(Payment payment) {
     return PaymentDto.builder()
         .id(payment.getId())
         .cardNo(payment.getCardNo())

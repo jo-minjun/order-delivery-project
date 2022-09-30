@@ -9,7 +9,6 @@ import javax.persistence.*;
 @Table(name = "payments")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@EqualsAndHashCode(of = {"id"}, callSuper = false)
 @Getter
 public class Payment implements Serializable {
 
@@ -27,6 +26,7 @@ public class Payment implements Serializable {
 
   private String authorizedNo;
 
+  @Column(nullable = false)
   private Long orderId;
 
   @Version

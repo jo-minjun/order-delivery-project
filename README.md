@@ -12,14 +12,18 @@ DDD와 Hexagonal Architecture를 적용하여 프로젝트 개발
 
 ### Usecase
 
-| ACTOR   | SYSTEM   | USECASE          | API CALL                                          | MESSAGING EVENT        | MESSAGE 소비자 |
-|---------|----------|------------------|---------------------------------------------------|------------------------|-------------|
-| 주문자     | Order    | placeOrder       | Payment.createPayment</br>Delivery.createDelivery |                        |             |
-| 주문자     | Order    | getOrder         | Payment.getPayment</br>Delivery.getDelivery       |                        |             |
-| 주문자     | Order    | changeOrder      | Delivery.changeDeliveryInfo                       |                        |             |
-| 주문자     | Order    | cancelOrder      | Payment.cancelPayment                             |                        |             |
-| 기사 (업체) | Delivery | startDelivery    |                                                   | DeliveryStartedEvent   | Order       |
-| 기사 (업체) | Delivery | completeDelivery |                                                   | DeliveryCompletedEvent | Order       |
+| ACTOR          | SYSTEM   | USECASE            | API CALL DEPENDENCY                               | MESSAGING EVENT PUBLISHING | MESSAGE 소비자 |
+|----------------|----------|--------------------|---------------------------------------------------|----------------------------|-------------|
+| 주문자 (사용자)      | Order    | placeOrder         |                                                   |                            |             |
+| 주문자 (사용자)      | Order    | payOrder           | Payment.createPayment</br>Delivery.createDelivery |                            |             |
+| 주문자 (사용자)      | Order    | getOrder           | Payment.getPayment</br>Delivery.getDelivery       |                            |             |
+| 주문자 (사용자)      | Order    | changeOrder        | Delivery.changeDeliveryInfo                       |                            |             |
+| 주문자 (사용자)      | Order    | cancelOrder        | Payment.cancelPayment                             | OrderCancelledEvent        | TBD         |
+| Order (SYSTEM) | Delivery | createDelivery     |                                                   |                            |             |
+| Order (SYSTEM) | Delivery | changeDeliveryInfo |                                                   |                            |             |
+| Order (SYSTEM) | Delivery | getDelivery        |                                                   |                            |             |
+| 기사 (사용자)       | Delivery | startDelivery      |                                                   | DeliveryStartedEvent       | Order       |
+| 기사 (사용자)       | Delivery | completeDelivery   |                                                   | DeliveryCompletedEvent     | Order       |
 
 ### Invariables
 

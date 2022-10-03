@@ -107,6 +107,7 @@ public class OrderService implements OrderUsecase {
         .then();
   }
 
+  // TODO: 이벤트 소비자 (Delivery) 추가
   @Override
   public Mono<Void> cancelOrder(Long orderId) {
     return Mono.fromCompletionStage(findOrder(orderId))
